@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="بصيرة"/>
+<meta name="theme-color" content="#050810"/>
+<title>بصيرة 🔮</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#050810;font-family:'-apple-system','SF Pro Rounded','Geeza Pro','Arabic UI Display',sans-serif;direction:rtl;overflow:hidden}
+
+:root{
+  --c1:#6ee7f7;--c2:#a78bfa;--c3:#f472b6;--c4:#34d399;--c5:#fbbf24;
+  --bg:#050810;--card:rgba(255,255,255,0.05);
+}
+
+#app{position:fixed;inset:0;overflow:hidden}
+
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 25%,rgba(110,231,247,.1) 0%,transparent 50%),
+  radial-gradient(ellipse at 85% 75%,rgba(167,139,250,.1) 0%,transparent 50%),
+  radial-gradient(ellipse at 50% 50%,rgba(5,8,16,1) 0%,transparent 100%)}
+
+/* Screens */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1;transition:opacity .35s,transform .35s}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateY(18px)}
+
+/* SPLASH */
+#splash{align-items:center;justify-content:center}
+.sp-wrap{text-align:center;animation:splashIn .9s cubic-bezier(.34,1.56,.64,1) forwards}
+.sp-orb{
+  width:120px;height:120px;border-radius:50%;margin:0 auto 20px;
+  background:conic-gradient(from 0deg,#6ee7f7,#a78bfa,#f472b6,#6ee7f7);
+  filter:drop-shadow(0 0 40px rgba(110,231,247,.5));
+  animation:spinOrb 4s linear infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;
+}
+@keyframes spinOrb{0%{filter:drop-shadow(0 0 40px rgba(110,231,247,.5))}50%{filter:drop-shadow(0 0 60px rgba(167,139,250,.7))}100%{filter:drop-shadow(0 0 40px rgba(110,231,247,.5))}}
+@keyframes splashIn{0%{transform:scale(.5) translateY(50px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+.sp-title{font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px}
+.sp-sub{font-size:14px;color:var(--c1);letter-spacing:4px;margin-top:8px;opacity:.8}
+
+/* HOME */
+#home{padding:0;overflow-y:auto;padding-bottom:90px}
+.home-top{
+  padding:52px 24px 20px;
+  background:linear-gradient(180deg,rgba(5,8,16,1) 60%,transparent);
+  position:sticky;top:0;z-index:5;
+}
+.home-top h1{font-size:30px;font-weight:900;color:#fff;letter-spacing:-1px}
+.home-top p{font-size:14px;color:rgba(255,255,255,.4);margin-top:4px}
+
+.input-section{padding:0 24px 20px}
+.big-input{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(110,231,247,.2);
+  border-radius:20px;padding:18px;
+  color:#fff;font-size:15px;font-family:inherit;
+  direction:rtl;outline:none;resize:none;
+  line-height:1.7;min-height:100px;
+  transition:border-color .2s;
+}
+.big-input:focus{border-color:rgba(110,231,247,.5)}
+.big-input::placeholder{color:rgba(255,255,255,.2)}
+
+.modes-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.mode-btn{
+  padding:16px 12px;border-radius:18px;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:transform .18s,box-shadow .18s;font-family:inherit;
+}
+.mode-btn:active{transform:scale(.94)}
+.mode-btn .m-icon{font-size:28px}
+.mode-btn .m-label{font-size:13px;font-weight:800}
+.mode-btn .m-desc{font-size:11px;opacity:.6;text-align:center;line-height:1.4}
+
+/* Results */
+.results-section{padding:0 24px}
+.result-card{
+  border-radius:22px;padding:22px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.08);
+  animation:fadeUp .45s ease forwards;
+}
+@keyframes fadeUp{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+.result-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.result-icon{font-size:24px}
+.result-title{font-size:15px;font-weight:800;color:#fff}
+.result-body{font-size:14px;color:rgba(255,255,255,.8);line-height:1.85}
+.result-body h3{color:var(--c1);font-size:14px;margin:14px 0 6px}
+.result-body strong{color:#fff}
+.result-body em{color:var(--c2);font-style:normal}
+
+/* Mind Map Canvas */
+.mindmap-wrap{width:100%;border-radius:16px;overflow:hidden;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06)}
+#mindmapCanvas{display:block;width:100%;touch-action:pan-x pan-y}
+
+/* Visual diagram */
+.diagram-wrap{display:flex;flex-direction:column;gap:10px}
+.diagram-node{
+  padding:14px 18px;border-radius:14px;font-size:13px;font-weight:700;
+  border:1.5px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;gap:10px;
+}
+.diagram-arrow{text-align:center;font-size:18px;color:rgba(255,255,255,.3)}
+
+/* Loading */
+.loading-wrap{padding:30px;text-align:center}
+.loading-orb{
+  width:60px;height:60px;border-radius:50%;margin:0 auto 16px;
+  background:conic-gradient(from 0deg,var(--c1),var(--c2),var(--c3),var(--c1));
+  animation:spin 1.2s linear infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:rgba(255,255,255,.5)}
+.loading-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.loading-dots span{width:7px;height:7px;border-radius:50%;background:var(--c1);animation:dot .9s ease infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s;background:var(--c2)}
+.loading-dots span:nth-child(3){animation-delay:.4s;background:var(--c3)}
+@keyframes dot{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.4);opacity:1}}
+
+/* Bottom Nav */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(5,8,16,.95);backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,.06);
+  display:flex;justify-content:space-around;
+  padding:12px 0 max(24px,env(safe-area-inset-bottom));z-index:50;
+}
+.nb{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,.3);font-family:inherit;font-size:11px;font-weight:700;
+  padding:4px 16px;transition:color .2s;
+}
+.nb.active{color:var(--c1)}
+.ni{font-size:22px}
+
+/* History screen */
+#history{padding:52px 0 90px;overflow-y:auto}
+.hist-header{padding:0 24px 20px}
+.hist-header h2{font-size:24px;font-weight:900;color:#fff}
+.hist-header p{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
+.hist-empty{text-align:center;padding:80px 24px;color:rgba(255,255,255,.25)}
+.hist-empty .he{font-size:60px;margin-bottom:16px}
+.hist-item{
+  margin:0 24px 12px;padding:18px;border-radius:18px;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  transition:background .2s;
+}
+.hist-item:active{background:rgba(255,255,255,.07)}
+.hi-topic{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.hi-meta{font-size:12px;color:rgba(255,255,255,.35);display:flex;gap:10px}
+.hi-tag{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  color:#050810;padding:12px 24px;border-radius:99px;
+  font-size:14px;font-weight:800;z-index:999;
+  white-space:nowrap;animation:tin .3s ease forwards;pointer-events:none;
+}
+@keyframes tin{0%{transform:translateX(-50%) translateY(16px);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div id="app">
+
+  <!-- SPLASH -->
+  <div class="screen" id="splash">
+    <div class="sp-wrap">
+      <div class="sp-orb">🔮</div>
+      <div class="sp-title">بصيرة</div>
+      <div class="sp-sub">فهم عميق · رؤية واضحة</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen hidden" id="home">
+    <div class="home-top">
+      <h1>بصيرة 🔮</h1>
+      <p>حوّل أي موضوع لمعرفة حقيقية</p>
+    </div>
+    <div class="input-section">
+      <textarea class="big-input" id="topicInput" placeholder="اكتب أي موضوع أو نص تبي تفهمه...&#10;&#10;مثال: الضغط الجوي، قانون أوم، الانتقاء الطبيعي، الاشتقاق..."></textarea>
+      <div class="modes-grid">
+        <button class="mode-btn" style="background:linear-gradient(135deg,rgba(110,231,247,.12),rgba(110,231,247,.05));border:1.5px solid rgba(110,231,247,.2)" onclick="analyze('deep')">
+          <span class="m-icon">🧠</span>
+          <span class="m-label" style="color:var(--c1)">فهم عميق</span>
+          <span class="m-desc" style="color:rgba(110,231,247,.6)">شرح عبقري يربط المعرفة بالحياة</span>
+        </button>
+        <button class="mode-btn" style="background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(167,139,250,.05));border:1.5px solid rgba(167,139,250,.2)" onclick="analyze('mindmap')">
+          <span class="m-icon">🗺️</span>
+          <span class="m-label" style="color:var(--c2)">خريطة ذهنية</span>
+          <span class="m-desc" style="color:rgba(167,139,250,.6)">تحويل النص لخريطة بصرية</span>
+        </button>
+        <button class="mode-btn" style="background:linear-gradient(135deg,rgba(244,114,182,.12),rgba(244,114,182,.05));border:1.5px solid rgba(244,114,182,.2)" onclick="analyze('visual')">
+          <span class="m-icon">🎨</span>
+          <span class="m-label" style="color:var(--c3)">رسم توضيحي</span>
+          <span class="m-desc" style="color:rgba(244,114,182,.6)">تمثيل بصري للمفاهيم</span>
+        </button>
+        <button class="mode-btn" style="background:linear-gradient(135deg,rgba(52,211,153,.12),rgba(52,211,153,.05));border:1.5px solid rgba(52,211,153,.2)" onclick="analyze('all')">
+          <span class="m-icon">✨</span>
+          <span class="m-label" style="color:var(--c4)">كل شي!</span>
+          <span class="m-desc" style="color:rgba(52,211,153,.6)">شرح + خريطة + رسم معاً</span>
+        </button>
+      </div>
+    </div>
+    <div class="results-section" id="resultsSection"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="screen hidden" id="history">
+    <div class="hist-header">
+      <h2>📚 سجل التعلم</h2>
+      <p>كل المواضيع اللي تعلمتها</p>
+    </div>
+    <div id="histList"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bnav" id="bnav" style="display:none">
+    <button class="nb active" onclick="navTo(this,'home')"><span class="ni">🔮</span>استكشف</button>
+    <button class="nb" onclick="navTo(this,'history')"><span class="ni">📚</span>سجلي</button>
+  </div>
+</div>
+
+<script>
+let history = JSON.parse(localStorage.getItem('basira_history')||'[]');
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById('bnav').style.display = id==='splash'?'none':'flex';
+}
+function navTo(btn,id){
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  show(id);
+  if(id==='history') renderHistory();
+}
+
+async function analyze(mode){
+  const topic = document.getElementById('topicInput').value.trim();
+  if(!topic){showToast('⚠️ اكتب موضوعك أولاً');return;}
+
+  const section = document.getElementById('resultsSection');
+
+  // Loading
+  const loader = document.createElement('div');
+  loader.className='result-card';
+  loader.style.background='rgba(255,255,255,.03)';
+  loader.innerHTML=`
+    <div class="loading-wrap">
+      <div class="loading-orb">🔮</div>
+      <div class="loading-text">${mode==='deep'?'أفكر بعمق...':mode==='mindmap'?'أرسم الخريطة...':mode==='visual'?'أرسم التوضيح...':'أحضّر كل شي...'}</div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>`;
+  section.insertBefore(loader, section.firstChild);
+
+  try {
+    if(mode==='deep') await doDeep(topic, loader);
+    else if(mode==='mindmap') await doMindmap(topic, loader);
+    else if(mode==='visual') await doVisual(topic, loader);
+    else if(mode==='all'){
+      await doDeep(topic, loader);
+      const l2=document.createElement('div');l2.className='result-card';l2.style.background='rgba(255,255,255,.03)';
+      l2.innerHTML=`<div class="loading-wrap"><div class="loading-orb">🗺️</div><div class="loading-text">أرسم الخريطة...</div><div class="loading-dots"><span></span><span></span><span></span></div></div>`;
+      section.insertBefore(l2,section.firstChild);
+      await doMindmap(topic,l2);
+      const l3=document.createElement('div');l3.className='result-card';l3.style.background='rgba(255,255,255,.03)';
+      l3.innerHTML=`<div class="loading-wrap"><div class="loading-orb">🎨</div><div class="loading-text">أرسم التوضيح...</div><div class="loading-dots"><span></span><span></span><span></span></div></div>`;
+      section.insertBefore(l3,section.firstChild);
+      await doVisual(topic,l3);
+    }
+
+    // Save to history
+    history.unshift({id:Date.now(),topic:topic.substring(0,60),mode,date:new Date().toLocaleDateString('ar')});
+    if(history.length>50) history=history.slice(0,50);
+    localStorage.setItem('basira_history',JSON.stringify(history));
+
+  } catch(e){
+    loader.innerHTML=`<div style="padding:20px;color:#ff6b6b;font-size:14px;text-align:center">❌ خطأ في الاتصال<br/><small style="color:rgba(255,255,255,.4)">تأكد من الإنترنت وحاول مرة ثانية</small></div>`;
+  }
+}
+
+async function callAI(prompt){
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1500,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text||'';
+}
+
+async function doDeep(topic, el){
+  const text = await callAI(`أنت معلم عبقري وفيلسوف. مهمتك تشرح "${topic}" بطريقة تخلق فهماً حقيقياً عميقاً — مو مجرد حفظ أكاديمي.
+
+اشرح بهذه الطريقة:
+
+## 🌱 الجوهر الحقيقي
+ما هو هذا الشيء في جوهره؟ لو كنت تشرحه لطفل ذكي جداً؟
+
+## 🔗 الربط بالحياة
+٣ أمثلة من الحياة اليومية توضح هذا المفهوم بشكل مثير للإعجاب
+
+## 💡 الفكرة المفاجئة
+شيء غير متوقع أو مثير عن هذا الموضوع يغير طريقة النظر إليه
+
+## 🤔 سؤال يحرك العقل
+سؤال عميق عن هذا الموضوع يجعل الطالب يفكر بطريقة مختلفة — مو سؤال اختبار عادي
+
+## 🌐 الصورة الكبيرة
+كيف يرتبط هذا الموضوع بمواضيع أخرى في العلوم/الحياة؟
+
+اكتب بأسلوب محادثة ودي ومثير وليس كتاباً مدرسياً.`);
+
+  el.style.background='linear-gradient(135deg,rgba(110,231,247,.08),rgba(110,231,247,.03))';
+  el.style.border='1px solid rgba(110,231,247,.2)';
+  el.innerHTML=`
+    <div class="result-header">
+      <span class="result-icon">🧠</span>
+      <span class="result-title">فهم عميق — ${topic.substring(0,30)}</span>
+    </div>
+    <div class="result-body">${formatText(text)}</div>`;
+}
+
+async function doMindmap(topic, el){
+  const json = await callAI(`أنشئ خريطة ذهنية لموضوع "${topic}".
+أرجع JSON فقط بدون أي نص آخر:
+{
+  "center": "اسم المركز",
+  "branches": [
+    {"label": "فرع 1", "color": "#6ee7f7", "children": ["تفصيل 1","تفصيل 2","تفصيل 3"]},
+    {"label": "فرع 2", "color": "#a78bfa", "children": ["تفصيل 1","تفصيل 2"]},
+    {"label": "فرع 3", "color": "#f472b6", "children": ["تفصيل 1","تفصيل 2","تفصيل 3"]},
+    {"label": "فرع 4", "color": "#34d399", "children": ["تفصيل 1","تفصيل 2"]},
+    {"label": "فرع 5", "color": "#fbbf24", "children": ["تفصيل 1","تفصيل 2"]}
+  ]
+}`);
+
+  try{
+    const clean=json.replace(/```json|```/g,'').trim();
+    const data=JSON.parse(clean);
+    el.style.background='linear-gradient(135deg,rgba(167,139,250,.08),rgba(167,139,250,.03))';
+    el.style.border='1px solid rgba(167,139,250,.2)';
+    el.innerHTML=`
+      <div class="result-header">
+        <span class="result-icon">🗺️</span>
+        <span class="result-title">خريطة ذهنية — ${topic.substring(0,30)}</span>
+      </div>
+      <div class="mindmap-wrap">
+        <canvas id="mindmapCanvas" height="420"></canvas>
+      </div>`;
+    drawMindmap(data);
+  } catch(e){
+    el.innerHTML=`<div style="padding:20px;color:#ff6b6b">❌ خطأ في رسم الخريطة</div>`;
+  }
+}
+
+function drawMindmap(data){
+  const canvas=document.getElementById('mindmapCanvas');
+  const w=canvas.offsetWidth*2;
+  const h=840;
+  canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(1,1);
+
+  // Background
+  ctx.fillStyle='rgba(0,0,0,0)';
+  ctx.fillRect(0,0,w,h);
+
+  const cx=w/2,cy=h/2;
+  const branches=data.branches||[];
+  const angleStep=(2*Math.PI)/branches.length;
+
+  // Draw center
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,70);
+  grad.addColorStop(0,'rgba(110,231,247,.3)');
+  grad.addColorStop(1,'rgba(110,231,247,.05)');
+  ctx.beginPath();ctx.arc(cx,cy,65,0,2*Math.PI);
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle='rgba(110,231,247,.6)';ctx.lineWidth=2;ctx.stroke();
+
+  ctx.fillStyle='#fff';ctx.font=`bold ${Math.min(28,w/20)}px -apple-system`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  wrapText(ctx,data.center||'المركز',cx,cy,110,32);
+
+  branches.forEach((branch,i)=>{
+    const angle=angleStep*i - Math.PI/2;
+    const bx=cx+Math.cos(angle)*200;
+    const by=cy+Math.sin(angle)*190;
+
+    // Line to branch
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(bx,by);
+    ctx.strokeStyle=branch.color+'88';ctx.lineWidth=3;
+    ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+
+    // Branch node
+    ctx.beginPath();ctx.arc(bx,by,48,0,2*Math.PI);
+    ctx.fillStyle=branch.color+'22';ctx.fill();
+    ctx.strokeStyle=branch.color;ctx.lineWidth=2.5;ctx.stroke();
+
+    ctx.fillStyle='#fff';ctx.font=`bold ${Math.min(22,w/25)}px -apple-system`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    wrapText(ctx,branch.label,bx,by,80,24);
+
+    // Children
+    const kids=branch.children||[];
+    const kStep=(Math.PI*.8)/Math.max(kids.length-1,1);
+    const kStart=angle-(Math.PI*.4);
+
+    kids.forEach((kid,j)=>{
+      const ka=kids.length===1?angle:kStart+kStep*j;
+      const kx=bx+Math.cos(ka)*130;
+      const ky=by+Math.sin(ka)*110;
+
+      ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(kx,ky);
+      ctx.strokeStyle=branch.color+'44';ctx.lineWidth=1.5;
+      ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+
+      ctx.beginPath();ctx.arc(kx,ky,32,0,2*Math.PI);
+      ctx.fillStyle=branch.color+'15';ctx.fill();
+      ctx.strokeStyle=branch.color+'66';ctx.lineWidth=1.5;ctx.stroke();
+
+      ctx.fillStyle='rgba(255,255,255,.8)';ctx.font=`${Math.min(18,w/30)}px -apple-system`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      wrapText(ctx,kid,kx,ky,58,20);
+    });
+  });
+}
+
+function wrapText(ctx,text,x,y,maxW,lineH){
+  if(!text)return;
+  const words=text.split(' ');
+  const lines=[];let line='';
+  for(const w of words){
+    const test=line?line+' '+w:w;
+    if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
+    else line=test;
+  }
+  if(line)lines.push(line);
+  const startY=y-(lines.length-1)*lineH/2;
+  lines.forEach((l,i)=>ctx.fillText(l,x,startY+i*lineH));
+}
+
+async function doVisual(topic, el){
+  const json = await callAI(`أنشئ رسماً توضيحياً بصرياً لموضوع "${topic}" يوضح المفاهيم والعلاقات بينها.
+أرجع JSON فقط بدون أي نص آخر:
+{
+  "title": "عنوان الرسم",
+  "type": "flow",
+  "nodes": [
+    {"id":1,"label":"خطوة أو مفهوم 1","desc":"وصف قصير","color":"#6ee7f7","icon":"⚡"},
+    {"id":2,"label":"خطوة أو مفهوم 2","desc":"وصف قصير","color":"#a78bfa","icon":"🔥"},
+    {"id":3,"label":"خطوة أو مفهوم 3","desc":"وصف قصير","color":"#f472b6","icon":"💡"},
+    {"id":4,"label":"خطوة أو مفهوم 4","desc":"وصف قصير","color":"#34d399","icon":"✨"},
+    {"id":5,"label":"نتيجة أو خلاصة","desc":"وصف قصير","color":"#fbbf24","icon":"🌟"}
+  ],
+  "connections": [
+    {"from":1,"to":2,"label":"يؤدي إلى"},
+    {"from":2,"to":3,"label":"ينتج"},
+    {"from":3,"to":4,"label":"يسبب"},
+    {"from":4,"to":5,"label":"النتيجة"}
+  ]
+}`);
+
+  try{
+    const clean=json.replace(/```json|```/g,'').trim();
+    const data=JSON.parse(clean);
+    el.style.background='linear-gradient(135deg,rgba(244,114,182,.08),rgba(244,114,182,.03))';
+    el.style.border='1px solid rgba(244,114,182,.2)';
+
+    const nodesHTML=data.nodes.map((n,i)=>`
+      <div class="diagram-node" style="background:${n.color}18;border-color:${n.color}44">
+        <span style="font-size:22px">${n.icon}</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:${n.color}">${n.label}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px">${n.desc}</div>
+        </div>
+      </div>
+      ${i<data.nodes.length-1?`<div class="diagram-arrow">↓<span style="font-size:11px;color:rgba(255,255,255,.3);margin-right:6px">${data.connections[i]?.label||''}</span></div>`:''}
+    `).join('');
+
+    el.innerHTML=`
+      <div class="result-header">
+        <span class="result-icon">🎨</span>
+        <span class="result-title">${data.title||'رسم توضيحي'}</span>
+      </div>
+      <div class="diagram-wrap">${nodesHTML}</div>`;
+  } catch(e){
+    el.innerHTML=`<div style="padding:20px;color:#ff6b6b">❌ خطأ في الرسم التوضيحي</div>`;
+  }
+}
+
+function formatText(text){
+  return text
+    .replace(/##\s*(.+)/g,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/\n\n/g,'</p><p style="margin-top:10px">')
+    .replace(/\n/g,'<br/>')
+    .replace(/^/,'<p>').replace(/$/,'</p>');
+}
+
+function renderHistory(){
+  const c=document.getElementById('histList');
+  if(!history.length){
+    c.innerHTML=`<div class="hist-empty"><div class="he">📚</div><p>ما عندك سجل بعد<br/>ابدأ باستكشاف مواضيع!</p></div>`;
+    return;
+  }
+  const modeColors={'deep':'#6ee7f7','mindmap':'#a78bfa','visual':'#f472b6','all':'#34d399'};
+  const modeLabels={'deep':'فهم عميق','mindmap':'خريطة','visual':'رسم','all':'شامل'};
+  c.innerHTML=history.map(h=>`
+    <div class="hist-item" onclick="loadHistory('${h.topic.replace(/'/g,"\\'")}')">
+      <div class="hi-topic">${h.topic}</div>
+      <div class="hi-meta">
+        <span>${h.date}</span>
+        <span class="hi-tag" style="background:${modeColors[h.mode]||'#6ee7f7'}22;color:${modeColors[h.mode]||'#6ee7f7'}">${modeLabels[h.mode]||h.mode}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadHistory(topic){
+  document.getElementById('topicInput').value=topic;
+  navTo(document.querySelectorAll('.nb')[0],'home');
+}
+
+let toastT;
+function showToast(msg){
+  let t=document.querySelector('.toast');if(t)t.remove();
+  if(toastT)clearTimeout(toastT);
+  t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);
+  toastT=setTimeout(()=>t.remove(),2500);
+}
+
+// Boot
+setTimeout(()=>{
+  show('home');
+  document.getElementById('bnav').style.display='flex';
+},2200);
+</script>
+</body>
+</html>
