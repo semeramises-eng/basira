@@ -299,17 +299,17 @@ async function analyze(mode){
 }
 
 async function callAI(prompt){
-  const res = await fetch('https://api.anthropic.com/v1/messages',{
+  const GEMINI_KEY = 'AIzaSyDVgD5FNHaM00MCnMxwGaalrVcqpf7biL8';
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1500,
-      messages:[{role:'user',content:prompt}]
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{maxOutputTokens:1500}
     })
   });
   const data = await res.json();
-  return data.content?.[0]?.text||'';
+  return data.candidates?.[0]?.content?.parts?.[0]?.text||'';
 }
 
 async function doDeep(topic, el){
